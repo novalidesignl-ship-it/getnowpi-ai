@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIAI - Free AI for Everyone</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900&family=Manrope:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { background: #f7f6f3; color: #111; font-family: 'DM Sans', 'Inter', sans-serif; font-weight: 400; overflow-x: hidden; }
+        a { color: inherit; text-decoration: none; }
+
+        header { position: fixed; top: 0; left: 0; right: 0; width: 100%; z-index: 100; height: 80px; background: transparent; border-bottom: none; transition: height 0.5s ease, background 0.5s ease, box-shadow 0.5s ease; }
+        header.scrolled { height: 64px; background: rgba(247,246,243,0.92); backdrop-filter: blur(20px); box-shadow: 0 1px 0 rgba(0,0,0,0.06); }
+        .header-inner { width: 100%; padding: 0 8%; height: 100%; display: flex; align-items: center; }
+        .logo { display: flex; align-items: center; margin-right: 40px; flex-shrink: 0; cursor: default; }
+        nav { display: flex; gap: 0; align-items: center; flex: 1; }
+        nav a:not(.cta-btn) { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 500; color: #555; padding: 8px 18px; border-radius: 8px; transition: color 0.2s, background 0.2s; text-transform: uppercase; letter-spacing: 1.5px; }
+        nav a:not(.cta-btn):hover { color: #111; background: rgba(0,0,0,0.04); }
+        .nav-spacer { flex: 1; }
+        .cta-btn { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; padding: 10px 24px; border-radius: 10px; background: #e67e22; color: #fff; border: none; cursor: pointer; transition: background 0.2s, transform 0.2s, box-shadow 0.2s; flex-shrink: 0; box-shadow: 0 2px 8px rgba(230,126,34,0.25); }
+        .cta-btn:hover { background: #d35400; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(230,126,34,0.35); }
+
+        .hero { position: relative; width: 100%; height: 100dvh; min-height: 520px; display: flex; align-items: center; overflow: hidden; }
+        .hero canvas { position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; }
+        .hero-content { position: relative; z-index: 10; text-align: left; pointer-events: none; max-width: 600px; padding-left: 8%; }
+        .hero-label { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 4px; color: #e67e22; margin-bottom: 16px; }
+        .hero-title { font-family: 'Manrope', sans-serif; font-size: clamp(42px, 7vw, 76px); font-weight: 800; letter-spacing: -2px; line-height: 1.05; margin-bottom: 20px; color: #111; }
+        .hero-sub { font-family: 'DM Sans', 'Inter', sans-serif; font-size: clamp(15px, 1.8vw, 18px); font-weight: 400; color: #666; line-height: 1.6; margin-bottom: 32px; max-width: 440px; }
+        .search-box { pointer-events: all; position: relative; width: min(480px, 85vw); }
+        .search-box input { width: 100%; padding: 14px 52px 14px 20px; border-radius: 14px; border: 1px solid #ddd; background: #fff; color: #111; font-family: 'DM Sans', 'Inter', sans-serif; font-size: 15px; outline: none; transition: border-color 0.3s; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+        .search-box input::placeholder { color: #aaa; }
+        .search-box input:focus { border-color: #e67e22; box-shadow: 0 2px 16px rgba(230,126,34,0.15); }
+        .search-box button { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 38px; height: 38px; border-radius: 10px; border: none; background: #e67e22; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+        .search-box button:hover { background: #cf6d17; }
+        .search-box button svg { width: 18px; height: 18px; }
+
+        .banner { position: absolute; bottom: 0; left: 0; right: 0; z-index: 10; background: rgba(247,246,243,0.85); backdrop-filter: blur(8px); border-top: 1px solid rgba(0,0,0,0.06); padding: 14px 0; overflow: hidden; }
+        .banner-track { display: flex; gap: 48px; animation: marquee 30s linear infinite; white-space: nowrap; }
+        .banner-track span { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 2px; }
+        @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+        section { padding: 100px 40px; max-width: 1200px; margin: 0 auto; }
+        .section-label { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 3px; color: #e67e22; margin-bottom: 12px; }
+        .section-title { font-family: 'Manrope', sans-serif; font-size: clamp(28px, 4vw, 44px); font-weight: 700; letter-spacing: -1px; margin-bottom: 48px; color: #111; }
+
+        .cards-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+        .card { background: #fff; border: 1px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 40px; transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s; position: relative; overflow: hidden; }
+        .card:hover { border-color: #e67e22; box-shadow: 0 8px 40px rgba(230,126,34,0.1); transform: translateY(-2px); }
+        .card-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+        .card-icon.chat-icon { background: linear-gradient(135deg, #e67e22, #f5a623); }
+        .card-icon.api-icon { background: linear-gradient(135deg, #1a1a1a, #444); position: relative; }
+        .card.locked { opacity: 0.5; }
+        .card.locked .card-icon::after { content: ''; position: absolute; top: -4px; right: -4px; width: 18px; height: 18px; border-radius: 50%; background: #e67e22; border: 2px solid #f7f6f3; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='11' width='18' height='11' rx='2' ry='2'/%3E%3Cpath d='M7 11V7a5 5 0 0 1 10 0v4'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: center; background-size: 10px; }
+        .card-badge { display: inline-block; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; padding: 4px 10px; border-radius: 6px; vertical-align: middle; }
+        .card-badge.soon { background: #fff3e0; color: #e67e22; }
+        .card-icon svg { width: 24px; height: 24px; stroke: #fff; fill: none; }
+        .card h3 { font-family: 'Manrope', sans-serif; font-size: 22px; font-weight: 700; margin-bottom: 12px; color: #111; }
+        .card p { font-size: 15px; line-height: 1.7; color: #777; margin-bottom: 24px; }
+        .card-link { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; color: #e67e22; transition: gap 0.3s, opacity 0.2s; }
+        .card-link:hover { gap: 12px; }
+
+        .models-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+        .model-chip { padding: 14px 18px; border-radius: 12px; background: #fff; border: 1px solid rgba(0,0,0,0.06); font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; color: #333; transition: border-color 0.3s; }
+        .model-chip:hover { border-color: rgba(0,0,0,0.12); }
+        .model-chip .provider { font-size: 11px; color: #aaa; margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; }
+
+        .cta-section { text-align: center; padding: 100px 40px; background: #efeee9; }
+        .cta-section .section-title { margin-bottom: 16px; }
+        .cta-section p { font-size: 16px; color: #777; max-width: 480px; margin: 0 auto 32px; line-height: 1.6; }
+        .cta-big { font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 600; padding: 14px 36px; border-radius: 12px; background: #e67e22; color: #fff; border: none; cursor: pointer; transition: background 0.2s; }
+        .cta-big:hover { background: #cf6d17; }
+
+        footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 40px; display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; }
+        footer .copy { font-size: 13px; color: #bbb; }
+        footer nav { gap: 24px; }
+        footer nav a { color: #888; font-size: 14px; }
+        footer nav a:hover { color: #111; }
+
+        @media (max-width: 768px) {
+            header { padding: 0 16px; }
+            nav { gap: 2px; }
+            nav a:not(.cta-btn) { padding: 6px 8px; font-size: 13px; }
+            .cta-btn { padding: 8px 16px; font-size: 13px; }
+            section { padding: 60px 20px; }
+            .hero-content { padding-left: 5%; }
+            footer { flex-direction: column; gap: 20px; padding: 30px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <header id="mainHeader">
+        <div class="header-inner">
+            <div class="logo">
+                <img src="logo-piai.avif" alt="PIAI" height="40" style="display:block;">
+            </div>
+            <nav>
+                <a href="#products">Products</a>
+                <a href="#models">Models</a>
+                <a href="#about">About</a>
+                <a href="#api-section">API</a>
+                <div class="nav-spacer"></div>
+                <a class="cta-btn" href="#chat">Get Free PI</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero" id="hero" style="max-width:none; padding:0;">
+        <canvas id="glCanvas"></canvas>
+        <div class="hero-content">
+            <p class="hero-label">Get Now PI AI</p>
+            <h1 class="hero-title">Unlimited<br>Free AI</h1>
+            <p class="hero-sub">Powered by 15+ open-source models with automatic failover. No signup. No rate limits. Just ask.</p>
+            <div class="search-box">
+                <input type="text" placeholder="What do you want to know?">
+                <button aria-label="Submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></button>
+            </div>
+        </div>
+        <div class="banner">
+            <div class="banner-track">
+                <span>Llama 4 Maverick</span><span>Gemini 2.5 Flash</span><span>Llama 3.3 70B</span><span>Mistral Small 3.1</span><span>Gemma 3 27B</span><span>Hermes 3 405B</span><span>Llama 4 Scout</span><span>100% Free</span><span>No Rate Limits</span><span>Auto Failover</span>
+                <span>Llama 4 Maverick</span><span>Gemini 2.5 Flash</span><span>Llama 3.3 70B</span><span>Mistral Small 3.1</span><span>Gemma 3 27B</span><span>Hermes 3 405B</span><span>Llama 4 Scout</span><span>100% Free</span><span>No Rate Limits</span><span>Auto Failover</span>
+            </div>
+        </div>
+    </section>
+
+    <section id="products">
+        <div class="section-label">Products</div>
+        <h2 class="section-title">What we offer</h2>
+        <div class="cards-grid">
+            <div class="card">
+                <div class="card-icon chat-icon"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+                <h3>Chat</h3>
+                <p>Ask anything. Get instant answers from top AI models. No signup, no limits. Just open and talk.</p>
+                <a href="#chat" class="card-link">Start chatting <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+            </div>
+            <div class="card locked">
+                <div class="card-icon api-icon"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+                <h3>API <span class="card-badge soon">Coming soon</span></h3>
+                <p>OpenAI-compatible endpoint. Drop it into any app — same format, zero config. Smart routing picks the fastest model for you.</p>
+                <a href="#api-section" class="card-link" style="color:#aaa; pointer-events:none;">View docs <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+            </div>
+        </div>
+    </section>
+
+    <section id="models">
+        <div class="section-label">Models</div>
+        <h2 class="section-title">Best free models, one place</h2>
+        <div class="models-grid">
+            <div class="model-chip">Llama 4 Maverick<div class="provider">Groq</div></div>
+            <div class="model-chip">Llama 4 Scout<div class="provider">Groq</div></div>
+            <div class="model-chip">Llama 3.3 70B<div class="provider">Groq + OpenRouter</div></div>
+            <div class="model-chip">Llama 3.1 8B<div class="provider">Groq</div></div>
+            <div class="model-chip">Gemini 2.5 Flash Lite<div class="provider">Google AI</div></div>
+            <div class="model-chip">Hermes 3 405B<div class="provider">OpenRouter</div></div>
+            <div class="model-chip">Mistral Small 3.1<div class="provider">OpenRouter</div></div>
+            <div class="model-chip">Gemma 3 27B<div class="provider">OpenRouter</div></div>
+            <div class="model-chip">Gemma 3 12B<div class="provider">OpenRouter</div></div>
+            <div class="model-chip">Gemma 3n E4B<div class="provider">OpenRouter</div></div>
+            <div class="model-chip">Step 3.5 Flash<div class="provider">OpenRouter</div></div>
+            <div class="model-chip">GLM 4.5 Air<div class="provider">OpenRouter</div></div>
+        </div>
+    </section>
+
+    <section class="cta-section" id="about" style="max-width:none;">
+        <div class="section-label">Get Started</div>
+        <h2 class="section-title">Unlimited free AI access</h2>
+        <p>No credit card. No rate limits. No signup. Just start asking questions and get instant answers from the best open-source models.</p>
+        <a href="#chat"><button class="cta-big">Start for free</button></a>
+    </section>
+
+    <footer>
+        <div class="copy">&copy; 2026 GNPIAI. All rights reserved.</div>
+        <nav><a href="#products">Products</a><a href="#models">Models</a><a href="https://github.com" target="_blank">GitHub</a></nav>
+    </footer>
+
+    <script>
+    // Header scroll effect
+    (function(){
+        const hdr=document.getElementById('mainHeader');
+        if(hdr){let ticking=false;window.addEventListener('scroll',function(){if(!ticking){requestAnimationFrame(function(){hdr.classList.toggle('scrolled',window.scrollY>40);ticking=false;});ticking=true;}},{passive:true});}
+    })();
+
+    (function() {
+        const canvas = document.getElementById('glCanvas');
+        if (!canvas || !canvas.parentElement) return;
+        canvas.width = canvas.parentElement.clientWidth;
+        canvas.height = canvas.parentElement.clientHeight;
+
+        let fps=0, fc=0, lt=0, lft=0, lat=0, dt=0, sc=1;
+        let mp=[0.5,0.5], ms=[0.5,0.5];
+
+        const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+        if (!gl) { canvas.style.background='linear-gradient(135deg,#fff8f0 0%,#fde8d0 50%,#f5d0a9 100%)'; return; }
+
+        const bufs=[], texs=[], fbos=[], prgs=[];
+        function cs(t,s){const sh=gl.createShader(t);gl.shaderSource(sh,s);gl.compileShader(sh);if(!gl.getShaderParameter(sh,gl.COMPILE_STATUS)){console.error(gl.getShaderInfoLog(sh));gl.deleteShader(sh);return null;}return sh;}
+        function lp(v,f){const a=cs(gl.VERTEX_SHADER,v),b=cs(gl.FRAGMENT_SHADER,f);if(!a||!b)return null;const p=gl.createProgram();gl.attachShader(p,a);gl.attachShader(p,b);gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS)){console.error(gl.getProgramInfoLog(p));return null;}prgs.push(p);return p;}
+        function cfb(t){const f=gl.createFramebuffer();gl.bindFramebuffer(gl.FRAMEBUFFER,f);gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,t,0);gl.bindFramebuffer(gl.FRAMEBUFFER,null);fbos.push(f);return f;}
+        function cet(){const t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,Math.floor(canvas.width*sc),Math.floor(canvas.height*sc),0,gl.RGBA,gl.UNSIGNED_BYTE,null);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);texs.push(t);return t;}
+        function ba(p,b){gl.useProgram(p);const l=gl.getAttribLocation(p,'aPosition');gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.enableVertexAttribArray(l);gl.vertexAttribPointer(l,2,gl.FLOAT,false,0,0);}
+
+        const VS=`#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+attribute vec2 aPosition;
+varying vec2 vUv;
+void main(){vUv=0.5*aPosition+0.5;gl_Position=vec4(aPosition,0.0,1.0);}`;
+
+        // Main fragment — light theme, watery blue mist on right
+        const FS=`#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+varying vec2 vUv;
+uniform float uTime;
+uniform vec2 uResolution;
+uniform sampler2D uNoiseTexture;
+uniform sampler2D uTrailTexture;
+
+#define NUM 10.0
+#define AMP 0.6
+#define SPD 0.012
+#define VEL vec2(1.2, 0.15)
+#define FRQ 5.0
+#define EXP 1.45
+#define WATER vec3(0.22, 0.52, 0.85)
+#define WATER2 vec3(0.35, 0.65, 0.92)
+#define DITHER 0.008
+
+vec2 turb(vec2 p, float freq, float num) {
+    mat2 rot = mat2(0.6,-0.8,0.8,0.6);
+    vec2 t = vec2(0.0);
+    for(float i=0.0;i<NUM;i++){
+        if(i>=num)break;
+        vec2 pos=p+t+SPD*i*uTime*VEL;
+        float ph=freq*(pos*rot).y+SPD*uTime*freq;
+        t+=rot[0]*sin(ph)/freq;
+        rot*=mat2(0.6,-0.8,0.8,0.6);
+        freq*=EXP;
+    }
+    return t;
+}
+
+void main(){
+    vec2 duv=0.9*gl_FragCoord.xy/64.0*mat2(0.8,-0.6,0.6,0.8);
+    float dither=texture2D(uNoiseTexture,duv).r-0.5;
+    vec4 trail=texture2D(uTrailTexture,vUv);
+
+    vec2 suv=vUv*2.0-1.0;
+    vec2 right=suv-vec2(0.4,0.0);
+    right.x*=0.6*uResolution.x/uResolution.y;
+
+    float factor=1.0+0.4*sin(7.0*suv.y+uTime*0.3)*sin(4.0*(suv.x+8.0*uTime*SPD));
+    vec2 tb=right+factor*AMP*turb(right,FRQ,NUM);
+    tb.x-=0.4*suv.y*suv.y;
+
+    float fade=max(3.0*suv.y*suv.y-suv.x+1.5,0.001);
+    float atten=fade*max(0.4*tb.x,-tb.x);
+
+    float ft=0.3*uTime;
+    vec2 fp=8.0*(tb+0.5*VEL*ft);
+    fp*=mat2(0.4,-0.3,0.3,0.4);
+    float f=cos(fp.x)*sin(fp.y)-0.5;
+    float flare=f*f+0.5*suv.y*suv.y-1.5*tb.x+0.6*cos(0.42*ft+1.6*tb.y)*cos(0.31*ft-tb.y);
+
+    // Raw intensity — boosted for bigger sand coverage
+    float intensity=0.15*(5.0/(atten*atten)+4.0/(flare*flare));
+
+    // Chromatic variation
+    const vec3 chrom=vec3(0.0,0.08,0.16);
+    vec3 chromMul=exp(vUv.x*
+        cos(tb.y*5.0+0.4*(uTime+tb.x)+chrom)*
+        cos(tb.y*7.0-0.5*(uTime-tb.x*1.5)+chrom)*
+        cos(tb.y*9.0+0.6*(uTime+tb.x*2.0)+chrom));
+
+    vec3 mist=intensity*mix(WATER,WATER2,0.5+0.5*suv.y)*chromMul;
+
+    // Vignette: wider coverage, fade only on far left
+    float vig=1.0-0.7*abs(suv.y);
+    vig*=0.3+0.7*suv.x;
+    mist*=vig*vig;
+
+    // Tonemap
+    mist/=1.0+mist;
+    mist=sqrt(mist);
+
+    // Light horizontal band
+    float yy=suv.y+0.03;
+    yy=max(1.0-10.0*yy*yy/max(0.5+1.5*vUv.x,0.1),0.0);
+    float light=max(0.5+0.5*vUv.x,0.0)*yy;
+    vec3 hue=mix(WATER,WATER2,0.5+0.5*suv.x);
+    vec3 rim=8.0*light*light*light*light*(0.5+0.5*suv.x)*hue;
+    rim/=1.0+rim;
+
+    // Trail
+    mist+=0.3*hue*pow(trail.aaa,vec3(1.4,1.2,1.0));
+
+    // Compose on white: white - blue mist
+    vec3 col=vec3(1.0)-mist*0.7;
+    col+=(1.0-col)*rim*rim*0.3;
+
+    // Subtle left fade to pure white
+    float leftFade=smoothstep(0.0,0.35,vUv.x);
+    col=mix(vec3(1.0),col,leftFade);
+
+    col+=DITHER*dither;
+    gl_FragColor=vec4(clamp(col,0.0,1.0),1.0);
+}`;
+
+        const FT=`#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+varying vec2 vUv;
+uniform float uTime;
+uniform float uDeltaTime;
+uniform vec2 uMouse;
+uniform vec2 uMouseVelocity;
+uniform vec2 uResolution;
+uniform sampler2D uNoiseTexture;
+uniform sampler2D uPreviousFrame;
+
+#define TRAIL_FALLOFF 9000.0
+#define FADE_EXP vec4(0.02,0.02,0.1,0.1)
+#define SCROLL_SPEED 0.0005
+#define DISTORT_SPEED 0.02
+#define TURB_NUM 8.0
+#define TURB_SPEED 0.5
+#define TURB_VEL vec2(0.1,0.0)
+#define TURB_FREQ 50.0
+#define TURB_EXP 1.3
+
+vec2 turbulence(vec2 p){
+    mat2 rot=mat2(0.6,-0.8,0.8,0.6);
+    vec2 t=vec2(0.0);float freq=TURB_FREQ;
+    for(float i=0.0;i<TURB_NUM;i++){
+        vec2 pos=p+TURB_SPEED*i*uTime*TURB_VEL;
+        float ph=freq*(pos*rot).y+TURB_SPEED*uTime*freq*0.1;
+        t+=rot[0]*sin(ph)/freq;
+        rot*=mat2(0.6,-0.8,0.8,0.6);
+        freq*=TURB_EXP;
+    }
+    return t;
+}
+
+void main(){
+    vec2 ratio=min(uResolution.yx/uResolution.xy,1.0);
+    float delta=144.0*uDeltaTime;
+    vec2 scroll=SCROLL_SPEED*vec2(1.0,vUv.y-0.5)*ratio;
+    vec2 tb=turbulence((vUv+scroll)/ratio);
+    vec2 distort=DISTORT_SPEED*tb;
+    vec2 duv=vUv+delta*scroll+delta*distort*ratio;
+    vec4 prev=texture2D(uPreviousFrame,duv);
+
+    vec2 trailA=vUv+0.01*delta*tb*ratio-uMouse;
+    vec2 trailB=-uMouseVelocity;
+    float trailD=dot(trailB,trailB);
+    vec2 trailDif=trailA/ratio;
+    float falloff=0.0;
+    if(trailD>0.0){
+        float f=clamp(dot(trailA,trailB)/trailD,0.0,1.0);
+        trailDif-=f*trailB/ratio;
+        falloff=1.0/(1.0+TRAIL_FALLOFF*dot(trailDif,trailDif));
+        falloff*=min(trailD/(0.001+trailD),1.0);
+    }
+    vec2 sv=(uMouse-uMouseVelocity)*2.0-1.0;
+    float vig=1.0-abs(sv.y);vig*=0.5+0.5*sv.x;
+    vec2 nuv=gl_FragCoord.xy/64.0+uTime*vec2(7.1,9.1);
+    float noise=texture2D(uNoiseTexture,nuv).r;
+    vec4 fade=pow(vec4(noise),FADE_EXP);
+    fade=exp(-2.0*fade*uDeltaTime);
+    vec4 decay=mix(vec4(0.5,0.5,0.0,0.0),prev,fade);
+    vec4 col=decay;
+    vec2 vel=(-trailB)/(0.01+length(trailB));
+    col.rg-=(0.5-abs(decay.rg-0.5))*(falloff*vel);
+    col.ba+=falloff*(1.0-decay.ba)*vec2(1.0,vig*vig);
+    col+=(noise-0.5)/255.0;
+    gl_FragColor=col;
+}`;
+
+        const mainP=lp(VS,FS), trailP=lp(VS,FT);
+        if(!mainP||!trailP){canvas.style.background='linear-gradient(135deg,#f0f4ff,#dbeafe,#bfdbfe)';return;}
+
+        const q=new Float32Array([-1,-1,1,-1,-1,1,1,1]),qb=gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER,qb);gl.bufferData(gl.ARRAY_BUFFER,q,gl.STATIC_DRAW);bufs.push(qb);
+        ba(mainP,qb);ba(trailP,qb);
+
+        const mU={time:gl.getUniformLocation(mainP,'uTime'),res:gl.getUniformLocation(mainP,'uResolution'),noise:gl.getUniformLocation(mainP,'uNoiseTexture'),trail:gl.getUniformLocation(mainP,'uTrailTexture')};
+        const tU={time:gl.getUniformLocation(trailP,'uTime'),dt:gl.getUniformLocation(trailP,'uDeltaTime'),res:gl.getUniformLocation(trailP,'uResolution'),mouse:gl.getUniformLocation(trailP,'uMouse'),mvel:gl.getUniformLocation(trailP,'uMouseVelocity'),noise:gl.getUniformLocation(trailP,'uNoiseTexture'),prev:gl.getUniformLocation(trailP,'uPreviousFrame')};
+
+        const pp=[cet(),cet()],pf=[cfb(pp[0]),cfb(pp[1])];let pi=0;
+
+        // Noise texture
+        const sz=64,nd=new Uint8Array(sz*sz*4);
+        for(let i=0;i<sz*sz;i++){const v=Math.random()*255|0;nd[i*4]=v;nd[i*4+1]=v;nd[i*4+2]=v;nd[i*4+3]=255;}
+        const nt=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,nt);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,sz,sz,0,gl.RGBA,gl.UNSIGNED_BYTE,nd);
+        gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.REPEAT);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.REPEAT);texs.push(nt);
+
+        function upd(){
+            if(!canvas.parentElement)return;
+            canvas.width=canvas.parentElement.clientWidth;canvas.height=canvas.parentElement.clientHeight;
+            gl.useProgram(mainP);gl.uniform2f(mU.res,canvas.width,canvas.height);
+            gl.useProgram(trailP);gl.uniform2f(tU.res,canvas.width,canvas.height);
+            gl.viewport(0,0,canvas.width,canvas.height);
+            for(let i=0;i<2;i++){gl.bindTexture(gl.TEXTURE_2D,pp[i]);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,Math.floor(canvas.width*sc),Math.floor(canvas.height*sc),0,gl.RGBA,gl.UNSIGNED_BYTE,null);}
+        }
+        upd();
+
+        window.addEventListener('mousemove',e=>{const r=canvas.getBoundingClientRect();mp=[(e.clientX-r.left)/canvas.clientWidth,1-(e.clientY-r.top)/canvas.clientHeight];},{passive:true});
+
+        function render(time){
+            dt=lt>0?Math.min((time-lt)*0.001,0.05):0.0167;lt=time;
+            fc++;if(time-lft>=1000){fps=Math.round(1000*fc/(time-lft));lft=time;fc=0;if(time-lat>=2000){if(fps<30&&sc>0.5){sc=Math.max(0.5,sc-0.1);upd();}else if(fps>55&&sc<1){sc=Math.min(1,sc+0.1);upd();}lat=time;}}
+            const vel=[mp[0]-ms[0],mp[1]-ms[1]];ms[0]+=vel[0];ms[1]+=vel[1];
+            const t=time*0.001,nx=(pi+1)%2;
+
+            gl.bindFramebuffer(gl.FRAMEBUFFER,pf[nx]);gl.useProgram(trailP);
+            gl.uniform1f(tU.time,t);gl.uniform1f(tU.dt,dt);gl.uniform2f(tU.mouse,mp[0],mp[1]);gl.uniform2f(tU.mvel,vel[0],vel[1]);
+            gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,nt);gl.uniform1i(tU.noise,0);
+            gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,pp[pi]);gl.uniform1i(tU.prev,1);
+            gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+
+            gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.useProgram(mainP);gl.uniform1f(mU.time,t);
+            gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,nt);gl.uniform1i(mU.noise,0);
+            gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,pp[nx]);gl.uniform1i(mU.trail,1);
+            gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+
+            pi=nx;requestAnimationFrame(render);
+        }
+        requestAnimationFrame(render);
+        window.addEventListener('resize',upd);
+        document.addEventListener('visibilitychange',()=>{if(!document.hidden){lt=0;lft=performance.now();lat=performance.now();}});
+    })();
+    </script>
+</body>
+</html>
