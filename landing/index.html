@@ -88,6 +88,7 @@
             section { padding: 60px 20px; }
             .hero-content { padding-left: 5%; }
             footer { flex-direction: column; gap: 20px; padding: 30px 20px; }
+            .cards-grid { grid-template-columns: 1fr !important; }
         }
     </style>
 </head>
@@ -130,12 +131,18 @@
     <section id="products">
         <div class="section-label">Products</div>
         <h2 class="section-title">What we offer</h2>
-        <div class="cards-grid">
+        <div class="cards-grid" style="grid-template-columns: repeat(3, 1fr);">
             <div class="card">
                 <div class="card-icon chat-icon"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
-                <h3>PIAI Chat — Free & Unlimited</h3>
-                <p>Completely free AI chat with no limits. 15+ top models to choose from — switch between them or let PIAI auto-pick the best. No signup, no rate limits, free forever.</p>
+                <h3>PIAI Chat</h3>
+                <p>Our flagship product. Unlimited free AI chat — PIAI smart-routes your requests across models for the best answer. No rate limits, no signup, free forever.</p>
                 <a href="#chat" class="card-link">Start chatting <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+            </div>
+            <div class="card">
+                <div class="card-icon" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></div>
+                <h3>Individual Models</h3>
+                <p>Direct access to specific AI models — Llama, Gemini, Mistral, Gemma and more. Free tier with provider rate limits. Pick exactly the model you need.</p>
+                <a href="#models" class="card-link">Browse models <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
             </div>
             <div class="card locked">
                 <div class="card-icon api-icon"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
